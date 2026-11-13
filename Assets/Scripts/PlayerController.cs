@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -14,6 +15,12 @@ public class PlayerController : MonoBehaviour
 
     // Variable privada para el control de saltos
     bool saltar = true;
+
+    bool activeMap = false;
+
+    // Obtenemos la referencia al sistema de partículas
+    [SerializeField] 
+    ParticleSystem jumpParticles;
 
     [SerializeField]
     float offsetRaycast = 0f;
@@ -36,6 +43,16 @@ public class PlayerController : MonoBehaviour
             saltar = false;
             // Aplicamos la fuerza física en la coordenada vertical
             rb.AddForce(Vector2.up * fuerzaSalto, ForceMode2D.Impulse);
+            jumpParticles.Play();
+            AudioManager.instance.PlaySFX("Jump");
+        }
+
+        if(Input.GetKeyDown(KeyCode.M) && !activeMap) {
+            SceneManager.LoadScene("MapScene",LoadSceneMode.Additive);
+            activeMap = true;
+        } else if (Input.GetKeyDown(KeyCode.M) && activeMap) {
+            SceneManager.UnloadSceneAsync("MapScene");
+            activeMap = false;
         }
 
         // Obtenemos el tamaño vertical del collider para configurar la coordenada de generación
@@ -72,6 +89,23 @@ public class PlayerController : MonoBehaviour
         // Activamos el pasado por parámetro
         GetComponent<Animator>().SetBool(name, true);
 
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision) {
+        if (collision != null) {
+            if (collision.collider.CompareTag("Enemy")) {
+                SCManager.instance.LoadScene("GameOver");
+            }
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision) {
+        if (collision != null) {
+            if (collision.CompareTag("PowerUp")) {
+                AudioManager.instance.PlaySFX("CollectCoin");
+                Destroy(collision.gameObject);
+            }
+        }
     }
 
 }
