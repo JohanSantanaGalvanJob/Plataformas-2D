@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -17,6 +18,10 @@ public class PlayerController : MonoBehaviour
     bool saltar = true;
 
     bool activeMap = false;
+
+    public int coinsCollected = 0;
+
+    public TextMeshProUGUI txtMonedas;
 
     // Obtenemos la referencia al sistema de partículas
     [SerializeField] 
@@ -103,6 +108,13 @@ public class PlayerController : MonoBehaviour
         if (collision != null) {
             if (collision.CompareTag("PowerUp")) {
                 AudioManager.instance.PlaySFX("CollectCoin");
+                Destroy(collision.gameObject);
+            }
+
+            if (collision.CompareTag("Coin")) {
+                AudioManager.instance.PlaySFX("CollectCoin");
+                coinsCollected++;
+                txtMonedas.text = coinsCollected.ToString();
                 Destroy(collision.gameObject);
             }
         }
